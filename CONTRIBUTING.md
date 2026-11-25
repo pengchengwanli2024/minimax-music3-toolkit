@@ -18,7 +18,10 @@ python -m py_compile scripts\make_audio_preview.py
 # 3) 示例工作流 JSON 合法
 python -c "import json,glob; [json.load(open(f,encoding='utf-8')) for f in glob.glob('examples/**/*.json',recursive=True)]; print('ok')"
 
-# 4) 端到端（需要本地 ComfyUI + 模型，约 1 分钟）
+# 4) Markdown 相对链接（图片/文档路径别写错层级）
+python scripts\check_links.py
+
+# 5) 端到端（需要本地 ComfyUI + 模型，约 1 分钟）
 pwsh -File .\scripts\generate.ps1 -LyricsFile .\examples\01-rnb-heartbreak\歌词.txt `
   -CaptionFile .\examples\01-rnb-heartbreak\caption.txt -Duration 20 -Seed 1 -Prefix 'Audio/ci' -OutDir .\out
 ```
