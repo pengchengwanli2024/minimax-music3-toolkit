@@ -34,6 +34,7 @@ flowchart LR
 | `scripts/run_prompt.ps1` | 提交已有工作流并等待结果、下载音频 |
 | `scripts/run_batch.ps1` | 一次提交多份工作流（不同 seed/版本），排队跑完 |
 | `scripts/make_audio_preview.py` | 生成波形 + 频谱预览图（PNG），用来快速检查一首歌的结构 |
+| `scripts/doctor.ps1` | 生成前环境自检：服务、版本、节点、模型、显存、队列，逐项给 OK / FAIL |
 | `examples/` | 三首已完成的中文原创示例（歌词 + caption + 工作流 JSON + 说明） |
 | `docs/deployment.md` | 部署过程、模型清单、实测性能、踩过的坑 |
 | `docs/prompt-guide.md` | 提示词三段式、押韵辙表、副歌钩子、参数与迭代流程 |
@@ -60,6 +61,12 @@ flowchart LR
 > 模型可以放在统一模型库（ComfyUI 的 `extra_model_paths.yaml` 里注册的目录），脚本只按文件名提交，不关心物理路径。
 
 ## 快速开始
+
+0. **先跑一次环境自检**（缺什么它直接告诉你）：
+
+   ```powershell
+   pwsh -File .\scripts\doctor.ps1
+   ```
 
 1. **启动 ComfyUI**，确认面板地址（默认 `http://127.0.0.1:8188`）：
 

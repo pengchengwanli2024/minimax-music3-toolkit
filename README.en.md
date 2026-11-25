@@ -36,6 +36,9 @@ lyrics.txt + caption.txt
 ## Quick start
 
 ```powershell
+# 0) environment self-check (tells you exactly what is missing)
+pwsh -File .\scripts\doctor.ps1
+
 # 1) ComfyUI is running on http://127.0.0.1:8188
 Invoke-RestMethod http://127.0.0.1:8188/system_stats
 
@@ -59,6 +62,7 @@ python .\scripts\make_audio_preview.py .\out\<file>.mp3 .\out\preview.png
 | `scripts/run_prompt.ps1` | submit an existing workflow JSON and download the result |
 | `scripts/run_batch.ps1` | queue several workflows at once |
 | `scripts/make_audio_preview.py` | waveform + spectrogram PNG of a rendered song |
+| `scripts/doctor.ps1` | environment self-check: service, version, nodes, models, VRAM, queue |
 
 ## Examples
 
