@@ -1,0 +1,70 @@
+name: Bug report
+description: 脚本报错、生成失败、输出异常
+labels: [bug]
+body:
+  - type: markdown
+    attributes:
+      value: |
+        感谢反馈。请先确认：ComfyUI ≥ 0.43、三个模型文件都在、`/system_stats` 能访问。
+        生成类问题请附上 ComfyUI 日志里的 `Prompt executed` 或报错行。
+
+  - type: input
+    id: comfyui_version
+    attributes:
+      label: ComfyUI 版本
+      description: 来自 `Invoke-RestMethod http://127.0.0.1:8188/system_stats` 的 comfyui_version
+      placeholder: "0.43.0"
+    validations:
+      required: true
+
+  - type: input
+    id: gpu
+    attributes:
+      label: 显卡与显存
+      placeholder: "RTX 4090 Laptop 16 GB"
+    validations:
+      required: true
+
+  - type: dropdown
+    id: script
+    attributes:
+      label: 使用的脚本
+      options:
+        - scripts/build_prompt.ps1
+        - scripts/generate.ps1
+        - scripts/generate_batch.ps1
+        - scripts/run_prompt.ps1
+        - scripts/run_batch.ps1
+        - scripts/make_audio_preview.py
+        - 其他 / 不确定
+    validations:
+      required: true
+
+  - type: textarea
+    id: command
+    attributes:
+      label: 执行的命令
+      render: powershell
+      placeholder: "pwsh -File .\\scripts\\generate.ps1 -LyricsFile ... -Duration 120 -Seed 1"
+    validations:
+      required: true
+
+  - type: textarea
+    id: behavior
+    attributes:
+      label: 实际发生了什么
+      description: 报错信息、生成的音频哪里不对（时长/人声/结构/静音等）
+    validations:
+      required: true
+
+  - type: textarea
+    id: log
+    attributes:
+      label: ComfyUI 日志（相关片段）
+      render: text
+      placeholder: "Prompt executed in 259.16 seconds / Required input is missing: quality ..."
+  - type: textarea
+    id: params
+    attributes:
+      label: 关键参数（可选）
+      description: steps / cfg_scale / top_k / max_duration / 是否 tiled 解码

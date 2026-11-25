@@ -1,0 +1,52 @@
+name: ci
+
+on:
+  push:
+    branches: [main]
+  pull_request:
+
+jobs:
+  lint:
+    runs-on: ubuntu-latest
+    steps:
+      - uses: actions/checkout@v4
+
+      - name: PowerShell syntax check
+        shell: pwsh
+        run: |
+          $failed = $false
+          Get-ChildItem scripts/*.ps1 | ForEach-Object {
+            $tokens = $null; $errors = $null
+            [System.Management.Automation.Language.Parser]::ParseFile($_.FullName, [ref]$tokens, [ref]$errors) | Out-Null
+            if ($errors.Count -gt 0) {
+              $failed = $true
+              foreach ($e in $errors) {
+                Write-Host "::error file=$($_.FullName),line=$($e.Extent.StartLineNumber)::$($e.Message)"
+              }
+            } else {
+              Write-Host "OK  $($_.Name)"
+            }
+          }
+          if ($failed) { exit 1 }
+
+      - name: Python syntax check
+        run: |
+          python3 -m py_compile scripts/make_audio_preview.py
+          python3 - <<'PY'
+          import glob, json, sys
+          files = sorted(glob.glob('examples/**/*.json', recursive=True))
+          for f in files:
+              with open(f, encoding='utf-8') as fh:
+                  data = json.load(fh)
+              if not isinstance(data, dict) or not data:
+                  sys.exit(f'{f}: not an API workflow object')
+          print(f'{len(files)} example workflow JSON files OK')
+          PY
+
+      - name: Check for machine-specific paths
+        run: |
+          if grep -rInE 'C:\\\\Users\\\\|/Users/|D:\\\\01Project' --include='*.ps1' --include='*.py' --include='*.md' --include='*.json' . ; then
+            echo "::error::Found machine-specific absolute paths in tracked files"
+            exit 1
+          fi
+          echo "no machine-specific paths"

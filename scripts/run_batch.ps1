@@ -7,8 +7,17 @@ param(
 )
 $ErrorActionPreference = 'Stop'
 
+# `pwsh -File ... -PromptFiles a.json,b.json` delivers ONE string; normalize to a real list.
+$files = @()
+foreach ($raw in $PromptFiles) {
+    foreach ($part in ($raw -split '[,;]+')) {
+        $p = $part.Trim().Trim('"').Trim("'")
+        if ($p) { $files += $p }
+    }
+}
+
 $jobs = @()
-foreach ($f in $PromptFiles) {
+foreach ($f in $files) {
     if (-not (Test-Path $f)) { Write-Host "SKIP missing: $f"; continue }
     $prompt = Get-Content $f -Raw | ConvertFrom-Json
     $body = @{ prompt = $prompt; client_id = 'mm3b-' + [guid]::NewGuid().ToString('N').Substring(0, 10) } | ConvertTo-Json -Depth 30

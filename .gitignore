@@ -6,6 +6,10 @@ out/
 *.opus
 preview*.png
 
+# python caches
+__pycache__/
+*.pyc
+
 # local config and logs
 config.ps1
 *.log

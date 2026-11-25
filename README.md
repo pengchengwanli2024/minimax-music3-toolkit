@@ -1,8 +1,28 @@
 # MiniMax Music 3 本地创作工作台
 
+[![CI](https://github.com/pengchengwanli2024/minimax-music3-toolkit/actions/workflows/ci.yml/badge.svg)](https://github.com/pengchengwanli2024/minimax-music3-toolkit/actions/workflows/ci.yml)
+[![License: MIT](https://img.shields.io/github/license/pengchengwanli2024/minimax-music3-toolkit)](LICENSE)
+[![ComfyUI](https://img.shields.io/badge/ComfyUI-%E2%89%A5%200.43-4a4a4a)](https://github.com/comfyanonymous/ComfyUI)
+[![Platform](https://img.shields.io/badge/platform-Windows%20%7C%20PowerShell-blue)](#)
+
+[English](README.en.md) | 中文
+
 在本地 ComfyUI 上用 **MiniMax Music 3** 生成中文歌曲的一套轻量工具链：把「歌词 + 曲风描述」变成可直接提交的 API 工作流，批量出多版、自动轮询进度、拉回音频并生成波形/频谱预览图。
 
 > 为 Windows + ComfyUI(Desktop) 实测环境编写，全部脚本无第三方依赖（PowerShell 5+ / PowerShell 7，Python 侧只用 ComfyUI 自带的 `av`、`numpy`、`Pillow`）。
+
+```mermaid
+flowchart LR
+    A["歌词.txt<br/>caption.txt"] --> B["build_prompt.ps1"]
+    B --> C["prompt.json"]
+    C -->|"POST /prompt"| D["ComfyUI"]
+    D -->|"GET /history/{id}<br/>轮询排队与进度"| E["完成"]
+    E -->|"GET /view"| F["out/*.mp3"]
+    F --> G["make_audio_preview.py"]
+    G --> H["波形 + 频谱 PNG"]
+```
+
+**试听**：三首示例的成品音频挂在 [v1.0.0 Release](https://github.com/pengchengwanli2024/minimax-music3-toolkit/releases/tag/v1.0.0)（音频不入库，避免仓库变大）。
 
 ## 项目包含什么
 
@@ -10,11 +30,15 @@
 |---|---|
 | `scripts/build_prompt.ps1` | 把歌词 + caption 组装成 MiniMax Music 3 的 API 工作流 JSON |
 | `scripts/generate.ps1` | 一条命令：组装 → 提交 → 轮询 → 下载成品音频 |
+| `scripts/generate_batch.ps1` | 同词同风格批量出多版：`-Seeds 111,222` 或 `-Count 3`，支持 `-DryRun` |
 | `scripts/run_prompt.ps1` | 提交已有工作流并等待结果、下载音频 |
 | `scripts/run_batch.ps1` | 一次提交多份工作流（不同 seed/版本），排队跑完 |
 | `scripts/make_audio_preview.py` | 生成波形 + 频谱预览图（PNG），用来快速检查一首歌的结构 |
 | `examples/` | 三首已完成的中文原创示例（歌词 + caption + 工作流 JSON + 说明） |
 | `docs/deployment.md` | 部署过程、模型清单、实测性能、踩过的坑 |
+| `docs/prompt-guide.md` | 提示词三段式、押韵辙表、副歌钩子、参数与迭代流程 |
+| `docs/images/` | 三首示例的波形 + 频谱预览图 |
+
 
 ## 环境要求
 
@@ -88,6 +112,22 @@
   -Duration 190 -Seed 8823111 -Prefix 'Audio/yanyudu_A' -OutDir .\out
 ```
 
+### `generate_batch.ps1` —— 同词同风格批量出多版
+
+```powershell
+# 指定 seed 列表（两个版本）
+.\scripts\generate_batch.ps1 -LyricsFile .\歌词.txt -CaptionFile .\caption.txt `
+  -Seeds 8823111,8823112 -Duration 190 -Prefix 'Audio/yanyudu' -OutDir .\out
+
+# 或者随机出 3 版
+.\scripts\generate_batch.ps1 -LyricsFile .\歌词.txt -CaptionFile .\caption.txt -Count 3 -Duration 190
+
+# 只生成工作流、不提交（先检查参数）
+.\scripts\generate_batch.ps1 -LyricsFile .\歌词.txt -CaptionFile .\caption.txt -Seeds 111,222 -DryRun
+```
+
+> 注意：`pwsh -File` 会把 `-Seeds 111,222` 当成一个字符串传入，脚本内部会按逗号/空格拆分，所以两种调用方式都可用。
+
 ### `run_prompt.ps1` / `run_batch.ps1` —— 已有工作流
 
 ```powershell
@@ -98,6 +138,8 @@
 批量脚本就是常见的「同一份词曲、不同 seed」用法：多出两版挑演唱。实测一次排两版（各 3 分钟歌）约 11 分钟。
 
 ## 写作指南（实测有效）
+
+> 更完整的版本见 **[docs/prompt-guide.md](docs/prompt-guide.md)**：caption 三段式逐项示例、六组押韵辙对照表、副歌钩子四条规则、30 秒→seed A/B→整曲的迭代流程、参数影响。
 
 **Caption（曲风描述）写三段**：全局信息（曲风/年代/BPM/调性）→ 人声细节（性别、音色、唱法、情绪）→ 编曲结构（乐器、段落动态、制作质感），最后加一句 `Avoid ...` 排除不想要的东西。英文写，模型对英文描述更稳。
 
@@ -126,20 +168,21 @@
 
 ## 示例歌曲（`examples/`）
 
-| 目录 | 歌名 | 风格 | 时长 |
-|---|---|---|---|
-| `01-rnb-heartbreak` | 还没学会不想你 | 中文 R&B / neo-soul 失恋抒情 | 2:00 |
-| `02-gufeng-yanyudu` | 烟雨渡 | 古风叙事（侠客·江南·十年重逢） | 2:30 / v2 约 2:51 |
-| `03-poprock-ganlu` | 赶路的人 | 中文流行摇滚（校园→打拼→回望） | 约 3:02–3:17 |
+| 目录 | 歌名 | 风格 | 时长 | 波形预览 |
+|---|---|---|---|---|
+| `01-rnb-heartbreak` | 还没学会不想你 | 中文 R&B / neo-soul 失恋抒情 | 2:00 | [预览](docs/images/rnb-heartbreak.png) |
+| `02-gufeng-yanyudu` | 烟雨渡 | 古风叙事（侠客·江南·十年重逢） | 2:30 / v2 约 2:51 | [预览](docs/images/gufeng-yanyudu-v2.png) |
+| `03-poprock-ganlu` | 赶路的人 | 中文流行摇滚（校园→打拼→回望） | 约 3:02–3:17 | [预览](docs/images/poprock-ganlu.png) |
 
 每首示例包含：`歌词.txt`、`caption.txt`（曲风描述）、`prompt.json`（可直接提交的工作流）、`说明.md`。
 
-> 示例里的音频与预览图**没有入库**（`out/`、`*.mp3`、`preview*.png` 均在 `.gitignore` 中），请用脚本自己生成。
+音频成品在 [v1.0.0 Release](https://github.com/pengchengwanli2024/minimax-music3-toolkit/releases/tag/v1.0.0) 提供试听；仓库本身只入库波形预览图（`docs/images/`），音频与 `out/` 目录都在 `.gitignore` 里，请用脚本自己生成。
 
 ## 声明与许可
 
 - 脚本代码、`examples/` 中的原创歌词与曲风描述：**MIT**，见 [LICENSE](LICENSE)。
 - 模型权重（归 MiniMax / Comfy Org）、ComfyUI 本体、生成音频的使用条款，以及风格参考的边界：见 [NOTICE.md](NOTICE.md)。
+- 贡献代码/示例请先看 [CONTRIBUTING.md](CONTRIBUTING.md)；问题请用 Issue 模板（会自动带上 ComfyUI 版本、显卡、日志等字段）。
 
 ## 相关项目
 

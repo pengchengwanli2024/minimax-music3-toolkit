@@ -1,0 +1,37 @@
+name: Feature request
+description: 新脚本、新参数、新示例或文档改进
+labels: [enhancement]
+body:
+  - type: textarea
+    id: problem
+    attributes:
+      label: 想解决什么问题
+      description: 现在的流程里哪一步不方便？
+    validations:
+      required: true
+
+  - type: textarea
+    id: proposal
+    attributes:
+      label: 建议的做法
+      description: 命令长什么样、输出是什么
+      render: powershell
+
+  - type: dropdown
+    id: area
+    attributes:
+      label: 涉及范围
+      options:
+        - 脚本 / 参数
+        - 提示词与歌词写法
+        - 文档
+        - 示例歌曲
+        - CI / 仓库结构
+        - 其他
+    validations:
+      required: true
+
+  - type: textarea
+    id: workaround
+    attributes:
+      label: 目前的替代做法（可选）
