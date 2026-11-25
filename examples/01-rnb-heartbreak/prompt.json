@@ -1,0 +1,123 @@
+{
+  "3": {
+    "inputs": {
+      "clip_name": "minimax_music3_text_encoder_pruned_int8_convrot.safetensors",
+      "device": "default",
+      "type": "minimax"
+    },
+    "class_type": "CLIPLoader"
+  },
+  "6": {
+    "inputs": {
+      "unet_name": "minimax_music3_dit_fp16.safetensors",
+      "weight_dtype": "default"
+    },
+    "class_type": "UNETLoader"
+  },
+  "7": {
+    "inputs": {
+      "vae_name": "minimax_music3_dav.safetensors"
+    },
+    "class_type": "VAELoader"
+  },
+  "38": {
+    "inputs": {
+      "seed": 8823001
+    },
+    "class_type": "SeedNode"
+  },
+  "13": {
+    "inputs": {
+      "cfg_scale": 1.7,
+      "seed": [
+        "38",
+        0
+      ],
+      "max_duration": 120.0,
+      "lyrics": "[Intro]\n（雨声）\nOh… 还没学会 不想你\nMm… 就这样 慢慢想起你\n\n[Verse 1]\n凌晨三点 手机还亮着\n你的头像 停在那一句晚安\n我把想说的话 打了又删\n原来习惯 比爱更难戒断\n\n[Pre-Chorus]\n我学着把白天填满\n学着对朋友说 我还好\n可一到夜里 全世界都安静\n你的名字 又偷偷跑出来\n\n[Chorus]\n还没学会 不想你\n连呼吸 都带着你的痕迹\n说好放手 说得那么轻易\n怎么才一秒 就想回头抱你\n还没学会 不想你\n把思念 折成一句 别担心\n如果下辈子 还能遇见你\n我一定 不让你走 那么远\n\n[Verse 2]\n街角那家你说难喝的店\n我最近一个人 去了几次\n老板娘问 怎么没见你\n我笑一笑 说她 去了很远的地方\n\n[Pre-Chorus]\n我学着把相片收好\n学着走过 你最爱的那条街\n可一到雨天 伞还是偏向左边\n那个位置 永远留给你\n\n[Chorus]\n还没学会 不想你\n连呼吸 都带着你的痕迹\n说好放手 说得那么轻易\n怎么才一秒 就想回头抱你\n还没学会 不想你\n把思念 折成一句 别担心\n如果下辈子 还能遇见你\n我一定 不让你走 那么远\n\n[Bridge]\n也许时间 真的会很慢\n慢到把你 慢慢变成习惯\n不是不爱 是终于明白\n有些人 只能放在心里 想念\n\n[Outro]\n还没学会 不想你…\nOh… 雨停了\n我还站在 原地",
+      "clip": [
+        "3",
+        0
+      ],
+      "caption": "Contemporary Chinese R&B / neo-soul heartbreak ballad, around 72 BPM, deeply emotional, intimate and sincere. Warm, slightly husky male tenor lead vocal with breathy close-mic delivery, natural emotional cracks, tasteful melisma and gospel-tinged runs, restrained falsetto on the choruses. Arrangement: soft Rhodes electric piano, warm sub bass, brushed drums with a laid-back late-night swing, subtle clean electric guitar, airy pads and vinyl texture, rain ambience under the intro, gentle string swell from the chorus onward. Structure: sparse intimate intro, conversational verses, a slowly building pre-chorus, choruses that open up with layered backing vocals and soft harmonies, a second verse slightly more emotional, a bridge stripped back to piano and voice, a full aching final chorus, and a very quiet outro with only piano and rain. Mood: heartbroken, tender, nostalgic, late-night loneliness, holding back tears, still in love. Polished modern R&B production with warm wide low end and smooth vocal compression. No rap, no EDM drops, no over-singing, no dramatic belting, no generic pop cliches.",
+      "top_k": 50
+    },
+    "class_type": "MiniMaxMusic3TextEncode"
+  },
+  "10": {
+    "inputs": {
+      "conditioning": [
+        "13",
+        0
+      ]
+    },
+    "class_type": "ConditioningZeroOut"
+  },
+  "15": {
+    "inputs": {
+      "batch_size": 1,
+      "seconds": [
+        "13",
+        1
+      ]
+    },
+    "class_type": "EmptyMiniMaxMusic3LatentAudio"
+  },
+  "9": {
+    "inputs": {
+      "scheduler": "simple",
+      "positive": [
+        "13",
+        0
+      ],
+      "model": [
+        "6",
+        0
+      ],
+      "latent_image": [
+        "15",
+        0
+      ],
+      "denoise": 1.0,
+      "negative": [
+        "10",
+        0
+      ],
+      "cfg": 1.7,
+      "sampler_name": "euler",
+      "seed": [
+        "38",
+        0
+      ],
+      "steps": 30
+    },
+    "class_type": "KSampler"
+  },
+  "42": {
+    "inputs": {
+      "samples": [
+        "9",
+        0
+      ],
+      "vae": [
+        "7",
+        0
+      ],
+      "overlap": 64,
+      "tile_size": 1536
+    },
+    "class_type": "VAEDecodeAudioTiled"
+  },
+  "44": {
+    "inputs": {
+      "audio": [
+        "42",
+        0
+      ],
+      "format": "mp3",
+      "format.quality": "V0",
+      "filename_prefix": "Audio/rnb_haimei_xuehui_buxiangni"
+    },
+    "class_type": "SaveAudioAdvanced"
+  }
+}

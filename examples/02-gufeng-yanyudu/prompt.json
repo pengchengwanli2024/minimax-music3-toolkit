@@ -1,0 +1,123 @@
+{
+  "3": {
+    "inputs": {
+      "type": "minimax",
+      "device": "default",
+      "clip_name": "minimax_music3_text_encoder_pruned_int8_convrot.safetensors"
+    },
+    "class_type": "CLIPLoader"
+  },
+  "6": {
+    "inputs": {
+      "unet_name": "minimax_music3_dit_fp16.safetensors",
+      "weight_dtype": "default"
+    },
+    "class_type": "UNETLoader"
+  },
+  "7": {
+    "inputs": {
+      "vae_name": "minimax_music3_dav.safetensors"
+    },
+    "class_type": "VAELoader"
+  },
+  "38": {
+    "inputs": {
+      "seed": 8823105
+    },
+    "class_type": "SeedNode"
+  },
+  "13": {
+    "inputs": {
+      "cfg_scale": 1.7,
+      "lyrics": "[Intro]\n（竹笛）\n江南三月 杏花雨\n谁家乌篷 摇过桥西\n\n[Verse 1]\n青石巷 落满杏花的影\n你撑伞 站在渡口等\n我一身风尘 一身剑鸣\n却在你的伞下 忘了姓名\n那一眼 就把江湖 放轻\n\n[Pre-Chorus]\n你说雨大 借我半伞春风\n我说姑娘 我本无家可归\n一句玩笑 说成了 一生\n后来的长堤 走了 多少回\n\n[Chorus]\n那一夜 你说 别走\n我握剑的手 抖了又抖\n仇未了 债未休\n\"等我\"两个字 哽在喉\n转身的人 不敢回头\n怕一回头 就再走不脱\n江南的雨 替我 落了十年\n落成一场 你不知的 思念\n\n[Verse 2]\n再回江南 杏花开如旧\n石桥下的水 还是 那样流\n船家说 有位姑娘\n每年三月 都在渡口 撑伞等候\n\n[Pre-Chorus]\n我不敢 走近你的伞\n怕这一身风霜 脏了你的眼\n你却抬头 轻轻唤我\n声音 还是 当年的雨\n\n[Chorus]\n你只问 你回来了\n我张了张嘴 却说不出什么\n你有你的 归处与灯火\n我有我的 江湖和漂泊\n原来最深的 相守\n是隔一场烟雨 认出彼此\n然后 把伞 递回去\n把\"珍重\" 留给 雨听\n\n[Bridge]\n若无那年 那场雨\n是否 就有 白头的理由\n可江湖 从不许人\n把剑 换成 你的手\n\n[Outro]\n烟雨里 你的伞 还偏向左边\n那是我 站过的位置\n十年了 雨没停\n我也 没走",
+      "top_k": 50,
+      "seed": [
+        "38",
+        0
+      ],
+      "caption": "Chinese ancient-style (gufeng) cinematic ballad, around 68 BPM, sorrowful and nostalgic, set in Jiangnan in the misty rain. Male lead vocal: warm, slightly weathered tenor with restrained emotion, breathy intimate verses and an open, aching chorus, very subtle Chinese opera-tinged ornamentation used sparingly, natural emotional cracks. Traditional instruments: solo dizi bamboo flute, guzheng, pipa, erhu, xiao, soft large drum, deep strings and a gentle atmospheric pad, with rain ambience under the intro and outro. Structure: sparse intro with dizi and rain, intimate verse with guzheng, pre-chorus joined by erhu, chorus opening with strings and drum, second verse with pipa plucks, bridge stripped back to xiao and voice, final chorus full and aching, outro returning to dizi and rain. Mood: tender, bittersweet, unfulfilled love, longing across ten years, misty Jiangnan, holding back tears. Polished cinematic production with warm low end and a wide natural reverb. No EDM, no rap, no modern pop drums, no over-singing, no heavy percussion.",
+      "clip": [
+        "3",
+        0
+      ],
+      "max_duration": 150.0
+    },
+    "class_type": "MiniMaxMusic3TextEncode"
+  },
+  "10": {
+    "inputs": {
+      "conditioning": [
+        "13",
+        0
+      ]
+    },
+    "class_type": "ConditioningZeroOut"
+  },
+  "15": {
+    "inputs": {
+      "batch_size": 1,
+      "seconds": [
+        "13",
+        1
+      ]
+    },
+    "class_type": "EmptyMiniMaxMusic3LatentAudio"
+  },
+  "9": {
+    "inputs": {
+      "positive": [
+        "13",
+        0
+      ],
+      "steps": 30,
+      "seed": [
+        "38",
+        0
+      ],
+      "scheduler": "simple",
+      "negative": [
+        "10",
+        0
+      ],
+      "latent_image": [
+        "15",
+        0
+      ],
+      "denoise": 1.0,
+      "sampler_name": "euler",
+      "cfg": 1.7,
+      "model": [
+        "6",
+        0
+      ]
+    },
+    "class_type": "KSampler"
+  },
+  "42": {
+    "inputs": {
+      "samples": [
+        "9",
+        0
+      ],
+      "vae": [
+        "7",
+        0
+      ],
+      "overlap": 64,
+      "tile_size": 1536
+    },
+    "class_type": "VAEDecodeAudioTiled"
+  },
+  "44": {
+    "inputs": {
+      "format": "mp3",
+      "audio": [
+        "42",
+        0
+      ],
+      "filename_prefix": "Audio/gufeng_yanyudu",
+      "format.quality": "V0"
+    },
+    "class_type": "SaveAudioAdvanced"
+  }
+}

@@ -1,0 +1,123 @@
+{
+  "3": {
+    "inputs": {
+      "device": "default",
+      "type": "minimax",
+      "clip_name": "minimax_music3_text_encoder_pruned_int8_convrot.safetensors"
+    },
+    "class_type": "CLIPLoader"
+  },
+  "6": {
+    "inputs": {
+      "weight_dtype": "default",
+      "unet_name": "minimax_music3_dit_fp16.safetensors"
+    },
+    "class_type": "UNETLoader"
+  },
+  "7": {
+    "inputs": {
+      "vae_name": "minimax_music3_dav.safetensors"
+    },
+    "class_type": "VAELoader"
+  },
+  "38": {
+    "inputs": {
+      "seed": 8823201
+    },
+    "class_type": "SeedNode"
+  },
+  "13": {
+    "inputs": {
+      "max_duration": 200.0,
+      "clip": [
+        "3",
+        0
+      ],
+      "caption": "Chinese pop-rock in the style of Wang Heye's \"热铁皮房顶的夏天\" band sound: a nostalgic, sincere, band-driven coming-of-age song about leaving campus, chasing a career in the big city, and growing up, around 104 BPM, major key with a wistful bittersweet undertone. Male lead vocal: warm, slightly raspy and honest, youthful and gritty, conversational storytelling in the verses, then an anthemic sing-along chorus with layered harmonies and crowd-style gang vocals in the final chorus. Arrangement: clean electric guitar arpeggios and ringing chords, acoustic strumming, overdriven electric guitar in the chorus, warm round bass, live rock drums with a solid backbeat, piano and organ pad, soaring strings in the climax. Structure: short solo guitar intro, intimate verse, rising pre-chorus, big anthemic chorus, fuller second verse, bridge stripped back to guitar and voice, final chorus biggest with gang vocals, outro returning to a single guitar. Mood: nostalgic, hopeful, bittersweet, the warmth of a summer night, the loneliness and ambition of a young adult chasing a career, moved but not defeated. Production: warm analog tape character, wide natural reverb, punchy but clean drums, vocal forward. No EDM, no synth-pop, no rap, no heavy metal.",
+      "top_k": 50,
+      "cfg_scale": 1.7,
+      "seed": [
+        "38",
+        0
+      ],
+      "lyrics": "[Intro]\n（吉他）\n那年夏天 很吵 很亮\n\n[Verse 1]\n毕业照 在窗台晒得发黄\n宿舍楼 空了一半 像散场\n行李箱 滚过四年的时光\n从校门 一路响到 车站台上\n我们举着啤酒 说十年后 会怎样\n谁都没先 承认 舍不得 离开这地方\n\n[Pre-Chorus]\n后来电话 越来越短\n后来心事 越来越满\n我把理想 都押给明天\n换一张 不认识我的脸\n\n[Chorus]\n赶路的人啊 抬头望一望\n总有一盏灯 为你亮在远方\n跌倒了 就把尘土拍在地上\n笑着说 没事 我还能扛\n赶路的人啊 别忘了来时的方向\n那年夏天 你眼睛里的光\n等有一天 你站在高处回望\n会听见 青春 还在为你鼓掌\n\n[Verse 2]\n第一份工作 在十七楼上\n加班的灯 陪我到天亮\n方案改到 第九版 我还在硬扛\n后来学会 把委屈下酒 不声张\n合同签下 那天 我站在楼下望\n一个人 笑了很久 也红了眼眶\n\n[Pre-Chorus]\n后来电话 还是那样短\n后来我 学会说\"我很好\" 说得自然\n她说 天冷了 记得加件衫\n我说 知道了 妈 你也早点睡吧\n\n[Chorus]\n赶路的人啊 抬头望一望\n总有一盏灯 为你亮在远方\n跌倒了 就把尘土拍在地上\n笑着说 没事 我还能扛\n赶路的人啊 别忘了来时的方向\n那年夏天 你眼睛里的光\n等有一天 你站在高处回望\n会听见 青春 还在为你鼓掌\n\n[Bridge]\n这些年 我也有了自己的房\n有了一扇 看得见灯的窗\n可偶尔 半夜 我会突然想\n那年 谁陪我 在天台上 大声唱\n\n[Final Chorus]\n赶路的人啊 抬头望一望\n总有一盏灯 为你亮在远方\n跌倒了 就把尘土拍在身上\n笑着说 没事 我还能扛\n赶路的人啊 别忘了来时的方向\n那年夏天 你眼睛里的光\n等有一天 你站在高处回望\n会听见 青春 还在为你鼓掌\nOh… 还在为你鼓掌\n\n[Outro]\n那年夏天 很吵 很亮\n我们都 还在路上"
+    },
+    "class_type": "MiniMaxMusic3TextEncode"
+  },
+  "10": {
+    "inputs": {
+      "conditioning": [
+        "13",
+        0
+      ]
+    },
+    "class_type": "ConditioningZeroOut"
+  },
+  "15": {
+    "inputs": {
+      "batch_size": 1,
+      "seconds": [
+        "13",
+        1
+      ]
+    },
+    "class_type": "EmptyMiniMaxMusic3LatentAudio"
+  },
+  "9": {
+    "inputs": {
+      "cfg": 1.7,
+      "seed": [
+        "38",
+        0
+      ],
+      "steps": 30,
+      "sampler_name": "euler",
+      "denoise": 1.0,
+      "model": [
+        "6",
+        0
+      ],
+      "negative": [
+        "10",
+        0
+      ],
+      "scheduler": "simple",
+      "latent_image": [
+        "15",
+        0
+      ],
+      "positive": [
+        "13",
+        0
+      ]
+    },
+    "class_type": "KSampler"
+  },
+  "42": {
+    "inputs": {
+      "vae": [
+        "7",
+        0
+      ],
+      "tile_size": 1536,
+      "overlap": 64,
+      "samples": [
+        "9",
+        0
+      ]
+    },
+    "class_type": "VAEDecodeAudioTiled"
+  },
+  "44": {
+    "inputs": {
+      "format": "mp3",
+      "format.quality": "V0",
+      "audio": [
+        "42",
+        0
+      ],
+      "filename_prefix": "Audio/ganlu_deren_takeA"
+    },
+    "class_type": "SaveAudioAdvanced"
+  }
+}

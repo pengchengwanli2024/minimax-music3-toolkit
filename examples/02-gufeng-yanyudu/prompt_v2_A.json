@@ -1,0 +1,123 @@
+{
+  "3": {
+    "class_type": "CLIPLoader",
+    "inputs": {
+      "type": "minimax",
+      "device": "default",
+      "clip_name": "minimax_music3_text_encoder_pruned_int8_convrot.safetensors"
+    }
+  },
+  "6": {
+    "class_type": "UNETLoader",
+    "inputs": {
+      "weight_dtype": "default",
+      "unet_name": "minimax_music3_dit_fp16.safetensors"
+    }
+  },
+  "7": {
+    "class_type": "VAELoader",
+    "inputs": {
+      "vae_name": "minimax_music3_dav.safetensors"
+    }
+  },
+  "38": {
+    "class_type": "SeedNode",
+    "inputs": {
+      "seed": 8823111
+    }
+  },
+  "13": {
+    "class_type": "MiniMaxMusic3TextEncode",
+    "inputs": {
+      "clip": [
+        "3",
+        0
+      ],
+      "caption": "Chinese-style (zhongguo feng) cinematic pop ballad in the spirit of Jay Chou's \"Fireworks Cool Easily\": melancholy minor key, around 72 BPM, modern R&B-tinged vocal phrasing and relaxed rhythmic delivery, ancient Jiangnan storytelling mood, dramatic and epic but intimate. GRAND CINEMATIC INTRO (about 14 seconds): distant rain ambience, a lone dizi motif, deep taiko-style drum hits, a sweeping guzheng glissando, strings rising in a slow crescendo, building real momentum before the vocal enters. Male lead vocal: warm, slightly nasal tenor with clear expressive Chinese enunciation, conversational phrasing in the verses, restrained at first, then a PASSIONATE, soaring, high-energy chorus with layered harmonies, octave doubling and tasteful ad-libs; the chorus must be simple, repetitive, hooky and instantly memorable, easy to sing along after one listen. Instruments: dizi, xiao, guzheng, pipa, erhu, grand piano, cinematic strings, taiko drums, plus a subtle modern sub bass and soft programmed R&B drums to modernize the groove. Structure: grand intro, intimate verse, building pre-chorus, huge catchy chorus, second verse with pipa, pre-chorus, chorus, a stripped bridge with piano and xiao, a final bigger chorus with full harmonies and ad-libs, then a quiet outro of dizi and rain. Mood: epic, sorrowful, nostalgic, unfulfilled love across ten years. Mix: wide cinematic reverb, punchy but clean low end, vocal forward. No rap, no screaming, no EDM drops, no heavy rock guitars.",
+      "lyrics": "[Intro]\n（大鼓·古筝·笛）\nAh…\n江南 烟雨\nAh…\n十年 一梦\n\n[Verse 1]\n青石巷 落满杏花香\n乌篷船 摇过旧时光\n你撑伞 等在石桥旁\n我一身风霜 不敢抬头望\n\n[Pre-Chorus]\n雨落青檐 打湿你的衣衫\n一句借伞 换了半生牵绊\n我笑说 江湖太远太宽\n不敢许你 一个明天\n\n[Chorus]\n烟雨纷纷 落满了江南城\n我听闻 你还在渡口等\n一盏灯 一个人 十年整\n等成我 心口最疼的回声\n十年风尘 换不回一次转身\n我提剑 也斩不断这缘分\n若来生 能重写这段前尘\n我愿把 江湖换你一程\n\n[Verse 2]\n再回江南 杏花依旧飞扬\n石桥下的水 还是那样凉\n船家说 有位姑娘 年年守望\n一把旧伞 撑过十载风霜\n\n[Pre-Chorus]\n我不敢 走近你的伞沿\n怕一身风雪 唐突你的眼\n你却先 抬头轻轻唤\n声音 还是当年的雨点\n\n[Chorus]\n烟雨纷纷 落满了江南城\n我听闻 你还在渡口等\n一盏灯 一个人 十年整\n等成我 心口最疼的回声\n十年风尘 换不回一次转身\n我提剑 也斩不断这缘分\n若来生 能重写这段前尘\n我愿把 江湖换你一程\n\n[Bridge]\n若当年 我没走\n是不是 就能白首\n可江湖 从不留人\n把剑 换成你的手\n\n[Final Chorus]\n烟雨纷纷 落满了江南城\n我听闻 你还在渡口等\n一盏灯 一个人 十年整\n等成我 心口最疼的回声\n十年风尘 换不回一次转身\n我提剑 也斩不断这缘分\n若来生 能重写这段前尘\n我愿把 江湖换你一程\nAh… 烟雨纷纷\n\n[Outro]\n你的伞 还偏向左边\n那是我 站过的位置\n十年了 雨没停\n我也 没走",
+      "seed": [
+        "38",
+        0
+      ],
+      "max_duration": 190.0,
+      "top_k": 50,
+      "cfg_scale": 1.7
+    }
+  },
+  "10": {
+    "class_type": "ConditioningZeroOut",
+    "inputs": {
+      "conditioning": [
+        "13",
+        0
+      ]
+    }
+  },
+  "15": {
+    "class_type": "EmptyMiniMaxMusic3LatentAudio",
+    "inputs": {
+      "seconds": [
+        "13",
+        1
+      ],
+      "batch_size": 1
+    }
+  },
+  "9": {
+    "class_type": "KSampler",
+    "inputs": {
+      "positive": [
+        "13",
+        0
+      ],
+      "scheduler": "simple",
+      "sampler_name": "euler",
+      "steps": 30,
+      "negative": [
+        "10",
+        0
+      ],
+      "denoise": 1.0,
+      "seed": [
+        "38",
+        0
+      ],
+      "model": [
+        "6",
+        0
+      ],
+      "latent_image": [
+        "15",
+        0
+      ],
+      "cfg": 1.7
+    }
+  },
+  "42": {
+    "class_type": "VAEDecodeAudioTiled",
+    "inputs": {
+      "tile_size": 1536,
+      "vae": [
+        "7",
+        0
+      ],
+      "samples": [
+        "9",
+        0
+      ],
+      "overlap": 64
+    }
+  },
+  "44": {
+    "class_type": "SaveAudioAdvanced",
+    "inputs": {
+      "format": "mp3",
+      "format.quality": "V0",
+      "filename_prefix": "Audio/yanyudu_v2_takeA",
+      "audio": [
+        "42",
+        0
+      ]
+    }
+  }
+}
