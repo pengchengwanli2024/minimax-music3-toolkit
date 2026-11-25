@@ -2,6 +2,7 @@
 
 [![CI](https://github.com/pengchengwanli2024/minimax-music3-toolkit/actions/workflows/ci.yml/badge.svg)](https://github.com/pengchengwanli2024/minimax-music3-toolkit/actions/workflows/ci.yml)
 [![License: MIT](https://img.shields.io/github/license/pengchengwanli2024/minimax-music3-toolkit)](LICENSE)
+[![Demo](https://img.shields.io/badge/demo-GitHub%20Pages-5a67d8)](https://pengchengwanli2024.github.io/minimax-music3-toolkit/)
 [![ComfyUI](https://img.shields.io/badge/ComfyUI-%E2%89%A5%200.43-4a4a4a)](https://github.com/comfyanonymous/ComfyUI)
 [![Platform](https://img.shields.io/badge/platform-Windows%20%7C%20PowerShell-blue)](#)
 
@@ -22,7 +23,7 @@ flowchart LR
     G --> H["波形 + 频谱 PNG"]
 ```
 
-**试听**：三首示例的成品音频挂在 [v1.0.0 Release](https://github.com/pengchengwanli2024/minimax-music3-toolkit/releases/tag/v1.0.0)（音频不入库，避免仓库变大）。
+**试听**：三首示例的成品音频挂在 [v1.0.0 Release](https://github.com/pengchengwanli2024/minimax-music3-toolkit/releases/tag/v1.0.0)（音频不入库，避免仓库变大）；也可以直接开 **[在线试听页](https://pengchengwanli2024.github.io/minimax-music3-toolkit/)**（带播放器的工作流示意）。
 
 ## 项目包含什么
 
@@ -30,7 +31,7 @@ flowchart LR
 |---|---|
 | `scripts/build_prompt.ps1` | 把歌词 + caption 组装成 MiniMax Music 3 的 API 工作流 JSON |
 | `scripts/generate.ps1` | 一条命令：组装 → 提交 → 轮询 → 下载成品音频 |
-| `scripts/generate_batch.ps1` | 同词同风格批量出多版：`-Seeds 111,222` 或 `-Count 3`，支持 `-DryRun` |
+| `scripts/generate_batch.ps1` | 同词同风格批量出多版：`-Seeds 111,222` 或 `-Count 3`，支持 `-Durations 120,150` 时长矩阵与 `-DryRun` |
 | `scripts/run_prompt.ps1` | 提交已有工作流并等待结果、下载音频 |
 | `scripts/run_batch.ps1` | 一次提交多份工作流（不同 seed/版本），排队跑完 |
 | `scripts/make_audio_preview.py` | 生成波形 + 频谱预览图（PNG），用来快速检查一首歌的结构 |
@@ -39,6 +40,7 @@ flowchart LR
 | `docs/deployment.md` | 部署过程、模型清单、实测性能、踩过的坑 |
 | `docs/prompt-guide.md` | 提示词三段式、押韵辙表、副歌钩子、参数与迭代流程 |
 | `docs/images/` | 三首示例的波形 + 频谱预览图 |
+| `docs/index.html` | GitHub Pages 试听页（播放器 + 工作流示意 + 快速开始） |
 
 
 ## 环境要求
@@ -67,6 +69,8 @@ flowchart LR
    ```powershell
    pwsh -File .\scripts\doctor.ps1
    ```
+
+   加 `-Json` 可输出机器可读结果（适合 CI / 监控）；失败时退出码为 1。
 
 1. **启动 ComfyUI**，确认面板地址（默认 `http://127.0.0.1:8188`）：
 
@@ -112,7 +116,7 @@ flowchart LR
 
 ### `generate.ps1` —— 一条命令出成品
 
-在 `build_prompt.ps1` 的基础上提交任务、轮询 `/history`，成功后通过 `/view` 把音频下载到 `-OutDir`。
+在 `build_prompt.ps1` 的基础上提交任务、轮询 `/history`，成功后通过 `/view` 把音频下载到 `-OutDir`。参数与 `build_prompt.ps1` 一致，另有 `-Quality V0|128k|320k`。
 
 ```powershell
 .\scripts\generate.ps1 -LyricsFile .\歌词.txt -CaptionFile .\caption.txt `
@@ -129,11 +133,15 @@ flowchart LR
 # 或者随机出 3 版
 .\scripts\generate_batch.ps1 -LyricsFile .\歌词.txt -CaptionFile .\caption.txt -Count 3 -Duration 190
 
+# 同 seed 不同时长对比（120s / 150s 各出一版）
+.\scripts\generate_batch.ps1 -LyricsFile .\歌词.txt -CaptionFile .\caption.txt -Seeds 111 -Durations 120,150
+
 # 只生成工作流、不提交（先检查参数）
-.\scripts\generate_batch.ps1 -LyricsFile .\歌词.txt -CaptionFile .\caption.txt -Seeds 111,222 -DryRun
+.\scripts\generate_batch.ps1 -LyricsFile .\歌词.txt -CaptionFile .\caption.txt -Seeds 111,222 -Durations 120,150 -DryRun
 ```
 
 > 注意：`pwsh -File` 会把 `-Seeds 111,222` 当成一个字符串传入，脚本内部会按逗号/空格拆分，所以两种调用方式都可用。
+> `-Quality V0|128k|320k` 控制 mp3 码率（默认 V0），三个生成脚本都支持。
 
 ### `run_prompt.ps1` / `run_batch.ps1` —— 已有工作流
 

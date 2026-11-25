@@ -4,6 +4,8 @@
 
 A thin toolchain for generating Chinese songs locally with **MiniMax Music 3** on **ComfyUI**: turn *lyrics + style caption* into a submittable API workflow, render several takes with different seeds, poll progress, pull the audio back, and render a waveform/spectrogram preview.
 
+Demo page with playable audio: **https://pengchengwanli2024.github.io/minimax-music3-toolkit/**
+
 > Built and measured on Windows + ComfyUI Desktop. No third-party dependencies: PowerShell 5+/7 only, and Python uses the `av` / `numpy` / `Pillow` that already ship with a ComfyUI environment.
 
 ## Pipeline
@@ -58,11 +60,11 @@ python .\scripts\make_audio_preview.py .\out\<file>.mp3 .\out\preview.png
 |---|---|
 | `scripts/build_prompt.ps1` | lyrics + caption → API workflow JSON (lyrics tags kept, leading `《title》` dropped) |
 | `scripts/generate.ps1` | build → submit → poll → download audio into `-OutDir` |
-| `scripts/generate_batch.ps1` | same, N seeds in one go (`-Seeds 111,222` or `-Count 3`) |
+| `scripts/generate_batch.ps1` | same, N seeds in one go (`-Seeds 111,222` or `-Count 3`); `-Durations 120,150` builds a seed × duration matrix; `-DryRun` builds only |
 | `scripts/run_prompt.ps1` | submit an existing workflow JSON and download the result |
 | `scripts/run_batch.ps1` | queue several workflows at once |
 | `scripts/make_audio_preview.py` | waveform + spectrogram PNG of a rendered song |
-| `scripts/doctor.ps1` | environment self-check: service, version, nodes, models, VRAM, queue |
+| `scripts/doctor.ps1` | environment self-check: service, version, nodes, models, VRAM, queue (`-Json` for machines) |
 
 ## Examples
 

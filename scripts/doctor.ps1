@@ -3,28 +3,45 @@ param(
     [string]$DitName = 'minimax_music3_dit_fp16.safetensors',
     [string]$DitInt8Name = 'minimax_music3_dit_int8_convrot.safetensors',
     [string]$ClipName = 'minimax_music3_text_encoder_pruned_int8_convrot.safetensors',
-    [string]$VaeName = 'minimax_music3_dav.safetensors'
+    [string]$VaeName = 'minimax_music3_dav.safetensors',
+    [switch]$Json
 )
 $ErrorActionPreference = 'Stop'
 
-$fail = 0
-function Ok($msg)   { Write-Host ("  [ OK ] " + $msg) -ForegroundColor Green }
-function Warn($msg) { Write-Host ("  [WARN] " + $msg) -ForegroundColor Yellow }
-function Bad($msg)  { Write-Host ("  [FAIL] " + $msg) -ForegroundColor Red; $script:fail++ }
+$script:fail = 0
+$script:results = @()
 
-Write-Host "ComfyUI doctor - $BaseUrl"
+function Add-Result([string]$status, [string]$message) {
+    $script:results += [pscustomobject]@{ status = $status; message = $message }
+    if ($status -eq 'FAIL') { $script:fail++ }
+    if (-not $Json) {
+        switch ($status) {
+            'OK'   { Write-Host ("  [ OK ] " + $message) -ForegroundColor Green }
+            'WARN' { Write-Host ("  [WARN] " + $message) -ForegroundColor Yellow }
+            'FAIL' { Write-Host ("  [FAIL] " + $message) -ForegroundColor Red }
+            default { Write-Host ("  [info] " + $message) }
+        }
+    }
+}
+function Ok($m)   { Add-Result 'OK' $m }
+function Warn($m) { Add-Result 'WARN' $m }
+function Bad($m)  { Add-Result 'FAIL' $m }
+function Info($m) { Add-Result 'INFO' $m }
+
+if (-not $Json) { Write-Host "ComfyUI doctor - $BaseUrl" }
 
 # 1. service + version + device
 $stats = $null
+$verText = $null
 try {
     $stats = Invoke-RestMethod -Uri "$BaseUrl/system_stats" -TimeoutSec 10
-    Ok ("ComfyUI {0} is reachable" -f $stats.system.comfyui_version)
+    $verText = [string]$stats.system.comfyui_version
+    Ok ("ComfyUI {0} is reachable" -f $verText)
 } catch {
     Bad ("cannot reach $BaseUrl/system_stats - is ComfyUI running? ($($_.Exception.Message))")
 }
 
 if ($stats) {
-    $verText = [string]$stats.system.comfyui_version
     $parts = $verText -split '\.'
     $major = 0; $minor = 0
     [void][int]::TryParse($parts[0], [ref]$major)
@@ -40,7 +57,7 @@ if ($stats) {
     } else {
         Warn 'no CUDA device reported by /system_stats'
     }
-    Write-Host ("  [info] python {0} / torch {1}" -f $stats.system.python_version, $stats.system.pytorch_version)
+    Info ("python {0} / torch {1}" -f $stats.system.python_version, $stats.system.pytorch_version)
 }
 
 # 2. nodes
@@ -69,7 +86,7 @@ if ($stats) {
         foreach ($want in $required[$folder]) {
             if ($names -contains $want) { Ok ("model found: $folder/$want") }
             else {
-                if ($folder -eq 'diffusion_models') { Write-Host ("  [info] not found: $folder/$want") }
+                if ($folder -eq 'diffusion_models') { Info ("not found: $folder/$want") }
                 else { Bad ("model missing: $folder/$want") }
             }
         }
@@ -83,13 +100,25 @@ if ($stats) {
     # 4. queue
     try {
         $q = Invoke-RestMethod -Uri "$BaseUrl/queue" -TimeoutSec 20
-        Write-Host ("  [info] queue: running={0} pending={1}" -f @($q.queue_running).Count, @($q.queue_pending).Count)
+        Info ("queue: running={0} pending={1}" -f @($q.queue_running).Count, @($q.queue_pending).Count)
     } catch { Warn 'cannot read /queue' }
 }
 
+# summary
+if ($Json) {
+    [pscustomobject]@{
+        ok                 = ($script:fail -eq 0)
+        baseUrl            = $BaseUrl
+        comfyuiVersion     = $verText
+        failed             = $script:fail
+        checks             = $script:results
+    } | ConvertTo-Json -Depth 6
+    if ($script:fail -gt 0) { exit 1 } else { exit 0 }
+}
+
 Write-Host ''
-if ($fail -gt 0) {
-    Write-Host ("FAILED: {0} check(s) did not pass. See README / docs/deployment.md." -f $fail) -ForegroundColor Red
+if ($script:fail -gt 0) {
+    Write-Host ("FAILED: {0} check(s) did not pass. See README / docs/deployment.md." -f $script:fail) -ForegroundColor Red
     exit 1
 }
 Write-Host 'All checks passed - ready to generate.' -ForegroundColor Green

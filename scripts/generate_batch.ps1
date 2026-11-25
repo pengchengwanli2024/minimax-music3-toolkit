@@ -4,11 +4,13 @@ param(
     [string[]]$Seeds = @(),
     [int]$Count = 0,
     [double]$Duration = 120.0,
+    [string[]]$Durations = @(),
     [string]$OutDir = './out',
     [string]$Prefix = 'Audio/song',
     [int]$Steps = 30,
     [double]$CfgScale = 1.7,
     [int]$TopK = 50,
+    [ValidateSet('V0', '128k', '320k')][string]$Quality = 'V0',
     [string]$BaseUrl = 'http://127.0.0.1:8188',
     [int]$TimeoutMinutes = 120,
     [string]$UnetName = 'minimax_music3_dit_fp16.safetensors',
@@ -39,28 +41,47 @@ if ($seedList.Count -eq 0) {
 $promptDir = Join-Path $OutDir 'prompts'
 if (-not (Test-Path $promptDir)) { New-Item -ItemType Directory -Force -Path $promptDir | Out-Null }
 
+# Durations: explicit list (e.g. -Durations 120,150) builds a seed x duration matrix.
+$durationList = @()
+foreach ($raw in $Durations) {
+    foreach ($part in ($raw -split '[,;\s]+')) {
+        $p = $part.Trim()
+        if (-not $p) { continue }
+        $d = 0.0
+        if (-not [double]::TryParse($p, [ref]$d)) { throw "Invalid duration value: '$p' (expected seconds, e.g. 120)" }
+        if ($d -gt 0) { $durationList += $d }
+    }
+}
+if ($durationList.Count -eq 0) { $durationList = @($Duration) }
+$multiDuration = $durationList.Count -gt 1
+
 $files = @()
 foreach ($seed in $seedList) {
-    # sanitize only the file name, never the directory part
-    $leaf = ('{0}_seed{1}.json' -f (Split-Path -Leaf $Prefix), $seed) -replace '[\\/:*?"<>|]', '_'
-    $file = Join-Path $promptDir $leaf
-    & (Join-Path $here 'build_prompt.ps1') `
-        -LyricsFile $LyricsFile `
-        -CaptionFile $CaptionFile `
-        -OutFile $file `
-        -Duration $Duration `
-        -Seed $seed `
-        -Prefix $Prefix `
-        -Steps $Steps `
-        -CfgScale $CfgScale `
-        -TopK $TopK `
-        -UnetName $UnetName `
-        -ClipName $ClipName `
-        -VaeName $VaeName
-    $files += $file
+    foreach ($dur in $durationList) {
+        # sanitize only the file name, never the directory part
+        $name = '{0}_seed{1}' -f (Split-Path -Leaf $Prefix), $seed
+        if ($multiDuration) { $name += ('_{0}s' -f [int]$dur) }
+        $leaf = ($name + '.json') -replace '[\\/:*?"<>|]', '_'
+        $file = Join-Path $promptDir $leaf
+        & (Join-Path $here 'build_prompt.ps1') `
+            -LyricsFile $LyricsFile `
+            -CaptionFile $CaptionFile `
+            -OutFile $file `
+            -Duration $dur `
+            -Seed $seed `
+            -Prefix $Prefix `
+            -Steps $Steps `
+            -CfgScale $CfgScale `
+            -TopK $TopK `
+            -Quality $Quality `
+            -UnetName $UnetName `
+            -ClipName $ClipName `
+            -VaeName $VaeName
+        $files += $file
+    }
 }
 
-Write-Host ("built {0} take(s): {1}" -f $files.Count, ($seedList -join ', '))
+Write-Host ("built {0} take(s): seeds [{1}] x durations [{2}]" -f $files.Count, ($seedList -join ', '), (($durationList | ForEach-Object { [int]$_ }) -join ', '))
 if ($DryRun) {
     $files | ForEach-Object { Write-Host ("  " + $_) }
     Write-Host 'DryRun: nothing submitted.'

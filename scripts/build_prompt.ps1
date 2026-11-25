@@ -8,6 +8,7 @@ param(
     [int]$Steps = 30,
     [double]$CfgScale = 1.7,
     [int]$TopK = 50,
+    [ValidateSet('V0', '128k', '320k')][string]$Quality = 'V0',
     [string]$UnetName = 'minimax_music3_dit_fp16.safetensors',
     [string]$ClipName = 'minimax_music3_text_encoder_pruned_int8_convrot.safetensors',
     [string]$VaeName = 'minimax_music3_dav.safetensors'
@@ -64,7 +65,7 @@ $prompt = [ordered]@{
             audio            = @('42', 0)
             filename_prefix  = $Prefix
             format           = 'mp3'
-            'format.quality' = 'V0'
+            'format.quality' = $Quality
         } }
 }
 

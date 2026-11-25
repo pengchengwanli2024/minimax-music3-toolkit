@@ -1,0 +1,174 @@
+<!DOCTYPE html>
+<html lang="zh-CN">
+<head>
+<meta charset="utf-8">
+<meta name="viewport" content="width=device-width, initial-scale=1">
+<title>MiniMax Music 3 本地创作工作台</title>
+<meta name="description" content="在本地 ComfyUI 上用 MiniMax Music 3 生成中文歌曲的工具链：歌词→工作流→批量多版→波形预览。">
+<style>
+  :root {
+    --bg: #0f1218;
+    --card: #171c26;
+    --card-2: #1e2532;
+    --text: #e8edf6;
+    --muted: #9aa6b8;
+    --accent: #64e0be;
+    --accent-2: #7aa2ff;
+    --line: #273043;
+  }
+  * { box-sizing: border-box; }
+  body {
+    margin: 0;
+    background: radial-gradient(1200px 600px at 20% -10%, #1a2436 0%, var(--bg) 60%);
+    color: var(--text);
+    font: 16px/1.7 -apple-system, BlinkMacSystemFont, "Segoe UI", "PingFang SC", "Microsoft YaHei", sans-serif;
+  }
+  .wrap { max-width: 960px; margin: 0 auto; padding: 56px 24px 72px; }
+  header h1 { font-size: 34px; line-height: 1.25; margin: 0 0 12px; letter-spacing: .5px; }
+  header p.tagline { color: var(--muted); margin: 0 0 22px; font-size: 17px; }
+  .pills { display: flex; flex-wrap: wrap; gap: 8px; margin-bottom: 8px; }
+  .pill {
+    font-size: 12.5px; color: var(--muted); border: 1px solid var(--line);
+    padding: 3px 10px; border-radius: 999px; background: rgba(255,255,255,.02);
+  }
+  .pill b { color: var(--accent); font-weight: 600; }
+  h2 { font-size: 20px; margin: 44px 0 14px; }
+  h2 small { font-size: 13px; color: var(--muted); font-weight: 400; margin-left: 8px; }
+  .songs { display: grid; gap: 14px; }
+  .song {
+    background: linear-gradient(180deg, var(--card-2), var(--card));
+    border: 1px solid var(--line); border-radius: 14px; padding: 16px 18px;
+  }
+  .song .top { display: flex; justify-content: space-between; gap: 12px; flex-wrap: wrap; align-items: baseline; }
+  .song .name { font-size: 17px; font-weight: 600; }
+  .song .meta { color: var(--muted); font-size: 13px; }
+  .song .tag { color: var(--accent-2); font-size: 12.5px; }
+  audio { width: 100%; margin-top: 12px; height: 38px; }
+  .note { color: var(--muted); font-size: 13.5px; margin-top: 10px; }
+  pre {
+    background: #0b0f15; border: 1px solid var(--line); border-radius: 12px;
+    padding: 14px 16px; overflow-x: auto; font-size: 13.5px; line-height: 1.6;
+  }
+  code { font-family: ui-monospace, SFMono-Regular, Consolas, monospace; }
+  .flow { display: flex; flex-wrap: wrap; gap: 8px; align-items: center; color: var(--muted); font-size: 13.5px; }
+  .flow span.box {
+    border: 1px solid var(--line); background: var(--card); color: var(--text);
+    padding: 6px 12px; border-radius: 8px;
+  }
+  .flow span.arrow { color: #46536b; }
+  .links { display: grid; grid-template-columns: repeat(auto-fit, minmax(210px, 1fr)); gap: 12px; }
+  .links a {
+    display: block; text-decoration: none; color: var(--text);
+    background: var(--card); border: 1px solid var(--line); border-radius: 12px;
+    padding: 14px 16px; transition: border-color .15s ease, transform .15s ease;
+  }
+  .links a:hover { border-color: var(--accent); transform: translateY(-1px); }
+  .links a span { display: block; color: var(--muted); font-size: 13px; margin-top: 3px; }
+  footer { margin-top: 52px; padding-top: 18px; border-top: 1px solid var(--line); color: var(--muted); font-size: 13px; }
+  a { color: var(--accent); }
+</style>
+</head>
+<body>
+<div class="wrap">
+  <header>
+    <h1>MiniMax Music 3 本地创作工作台</h1>
+    <p class="tagline">
+      在本地 ComfyUI 上用 MiniMax Music 3 生成中文歌曲：歌词 + 曲风描述 → API 工作流 → 批量多版 → 波形预览。<br>
+      下面是本地生成的三首原创示例，直接点播放。
+    </p>
+    <div class="pills">
+      <span class="pill"><b>MIT</b> License</span>
+      <span class="pill">ComfyUI <b>≥ 0.43</b></span>
+      <span class="pill">实测 <b>RTX 4090 Laptop 16 GB</b></span>
+      <span class="pill">Windows / PowerShell</span>
+      <span class="pill">CI 全绿</span>
+    </div>
+  </header>
+
+  <h2>试听 <small>由 MiniMax Music 3 在本地生成 · MP3 V0</small></h2>
+  <div class="songs">
+    <div class="song">
+      <div class="top">
+        <div>
+          <div class="name">还没学会不想你</div>
+          <div class="tag">中文 R&B / neo-soul 失恋抒情 · 2:00</div>
+        </div>
+        <div class="meta">60 BPM 感 · 温暖微哑男声</div>
+      </div>
+      <audio controls preload="none" src="https://github.com/pengchengwanli2024/minimax-music3-toolkit/releases/download/v1.0.0/01-rnb-heartbreak-haimei.mp3"></audio>
+      <div class="note">主歌口语化长句 + 副歌「还没学会 不想你」三遍重复钩子。</div>
+    </div>
+    <div class="song">
+      <div class="top">
+        <div>
+          <div class="name">烟雨渡</div>
+          <div class="tag">古风叙事 · 侠客 · 江南 · 十年重逢 · ≈2:51</div>
+        </div>
+        <div class="meta">68 BPM · 竹笛 / 古筝 / 二胡 / 大鼓</div>
+      </div>
+      <audio controls preload="none" src="https://github.com/pengchengwanli2024/minimax-music3-toolkit/releases/download/v1.0.0/02-gufeng-yanyudu-v2A.mp3"></audio>
+      <div class="note">14 秒大鼓+古筝+笛前奏起势；副歌「烟雨纷纷 落满了江南城」重复三遍。</div>
+    </div>
+    <div class="song">
+      <div class="top">
+        <div>
+          <div class="name">赶路的人</div>
+          <div class="tag">中文流行摇滚 · 校园 → 打拼 → 回望 · ≈3:17</div>
+        </div>
+        <div class="meta">≈104 BPM · 清音/失真吉他 + 真鼓 + 大合唱</div>
+      </div>
+      <audio controls preload="none" src="https://github.com/pengchengwanli2024/minimax-music3-toolkit/releases/download/v1.0.0/03-poprock-ganlu-A.mp3"></audio>
+      <div class="note">副歌「赶路的人啊 抬头望一望」；最后一轮副歌加群众合唱。</div>
+    </div>
+    <div class="song">
+      <div class="top">
+        <div>
+          <div class="name">30 秒快速验证样本</div>
+          <div class="tag">中文流行（用于验证环境 / 链路）· 0:30</div>
+        </div>
+        <div class="meta">冷启动后约 1 分钟出结果</div>
+      </div>
+      <audio controls preload="none" src="https://github.com/pengchengwanli2024/minimax-music3-toolkit/releases/download/v1.0.0/demo-30s-chinese-pop.mp3"></audio>
+    </div>
+  </div>
+
+  <h2>工作流</h2>
+  <div class="flow">
+    <span class="box">歌词.txt + caption.txt</span><span class="arrow">→</span>
+    <span class="box">build_prompt.ps1</span><span class="arrow">→</span>
+    <span class="box">prompt.json</span><span class="arrow">→</span>
+    <span class="box">ComfyUI /prompt</span><span class="arrow">→</span>
+    <span class="box">AR → DiT → VAE</span><span class="arrow">→</span>
+    <span class="box">/view 下载 mp3</span><span class="arrow">→</span>
+    <span class="box">波形 + 频谱 PNG</span>
+  </div>
+
+  <h2>三条命令跑起来</h2>
+  <pre><code># 0) 环境自检（服务 / 版本 / 节点 / 模型 / 显存 / 队列）
+pwsh -File .\scripts\doctor.ps1
+
+# 1) 生成一首 30 秒测试曲
+pwsh -File .\scripts\generate.ps1 -LyricsFile .\examples\02-gufeng-yanyudu\歌词.txt `
+  -CaptionFile .\examples\02-gufeng-yanyudu\caption.txt `
+  -Duration 30 -Seed 8823105 -Prefix 'Audio/quickstart' -OutDir .\out
+
+# 2) 同一份词曲批量出多版（不同 seed / 不同时长）
+pwsh -File .\scripts\generate_batch.ps1 -LyricsFile .\examples\03-poprock-ganlu\歌词.txt `
+  -CaptionFile .\examples\03-poprock-ganlu\caption.txt `
+  -Seeds 8823201,8823202 -Durations 190 -OutDir .\out</code></pre>
+
+  <h2>文档</h2>
+  <div class="links">
+    <a href="https://github.com/pengchengwanli2024/minimax-music3-toolkit">GitHub 仓库<span>README · 脚本 · 示例 · Release</span></a>
+    <a href="https://github.com/pengchengwanli2024/minimax-music3-toolkit/blob/main/docs/prompt-guide.md">提示词与歌词指南<span>caption 三段式 · 押韵辙 · 副歌钩子</span></a>
+    <a href="https://github.com/pengchengwanli2024/minimax-music3-toolkit/blob/main/docs/deployment.md">部署与实测记录<span>模型清单 · 耗时 · 常见问题</span></a>
+    <a href="https://github.com/pengchengwanli2024/minimax-music3-toolkit/releases/tag/v1.0.0">Release v1.0.0<span>试听音频（4 段）</span></a>
+  </div>
+
+  <footer>
+    代码与示例歌词：MIT License · 模型权重归 MiniMax / Comfy Org，不随本仓库分发 ·
+    音频由 MiniMax Music 3 在本机生成 · <a href="https://github.com/pengchengwanli2024/minimax-music3-toolkit">GitHub</a>
+  </footer>
+</div>
+</body>
+</html>
