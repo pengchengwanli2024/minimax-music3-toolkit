@@ -136,12 +136,8 @@
 
 > 示例里的音频与预览图**没有入库**（`out/`、`*.mp3`、`preview*.png` 均在 `.gitignore` 中），请用脚本自己生成。
 
-## 声明
+## 声明与许可
 
-- 模型权重与推理代码版权归 **MiniMax / Comfy Org** 所有，请遵守其许可；本仓库不包含任何模型权重。
-- `examples/` 中的歌词与曲风描述为本仓库原创，MIT 许可随代码一同授权。
-- 参考过的音乐风格（王赫野《热铁皮房顶的夏天》、周杰伦《烟花易冷》等）仅作用户创意参考，不包含任何原曲素材。
+- 脚本代码、`examples/` 中的原创歌词与曲风描述：**MIT**，见 [LICENSE](LICENSE)。
+- 模型权重（归 MiniMax / Comfy Org）、ComfyUI 本体、生成音频的使用条款，以及风格参考的边界：见 [NOTICE.md](NOTICE.md)。
 
-## License
-
-[MIT](LICENSE)

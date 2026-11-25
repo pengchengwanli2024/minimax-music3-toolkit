@@ -19,8 +19,3 @@ AUTHORS OR COPYRIGHT HOLDERS BE LIABLE FOR ANY CLAIM, DAMAGES OR OTHER
 LIABILITY, WHETHER IN AN ACTION OF CONTRACT, TORT OR OTHERWISE, ARISING FROM,
 OUT OF OR IN CONNECTION WITH THE SOFTWARE OR THE USE OR OTHER DEALINGS IN THE
 SOFTWARE.
-
-The lyrics and style descriptions under examples/ are original works and are
-licensed under the same MIT license. Model weights, the MiniMax Music 3
-architecture and ComfyUI itself are NOT covered by this license and remain
-under their respective licenses.
