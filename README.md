@@ -141,3 +141,7 @@
 - 脚本代码、`examples/` 中的原创歌词与曲风描述：**MIT**，见 [LICENSE](LICENSE)。
 - 模型权重（归 MiniMax / Comfy Org）、ComfyUI 本体、生成音频的使用条款，以及风格参考的边界：见 [NOTICE.md](NOTICE.md)。
 
+## 相关项目
+
+- [minimax-h3-comfyui-playbook](https://github.com/pengchengwanli2024/minimax-h3-comfyui-playbook) —— 同一台 16 GB 显卡上的 MiniMax H3 视频生成实战手册：可复现的参数组合、实测耗时与踩坑清单
+
