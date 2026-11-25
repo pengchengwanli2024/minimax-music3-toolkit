@@ -43,6 +43,9 @@ jobs:
           print(f'{len(files)} example workflow JSON files OK')
           PY
 
+      - name: Offline unit tests
+        run: python3 -m unittest discover -s tests -v
+
       - name: Check relative links
         run: python3 scripts/check_links.py
 
